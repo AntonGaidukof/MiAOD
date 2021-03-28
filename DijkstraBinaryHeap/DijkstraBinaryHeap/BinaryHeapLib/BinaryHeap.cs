@@ -133,6 +133,7 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
                 _heap[ index ] = parent;
                 index = parentIndex;
                 parentIndex = GetParentInndex( index );
+                parentIndex = GetParentIndex( index );
                 element = _heap[ index ];
                 parent = _heap[ parentIndex ];
             }
@@ -177,6 +178,7 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
         }
 
         private int GetParentInndex( int elementIndex )
+        private int GetParentIndex( int elementIndex )
         {
             return ( elementIndex - 1 ) / 2;
         }
