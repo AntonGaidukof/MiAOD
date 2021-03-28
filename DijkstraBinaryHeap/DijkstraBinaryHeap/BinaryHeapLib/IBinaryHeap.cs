@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace DijkstraBinaryHeap.BinaryHeapLib
 {
     public interface IBinaryHeap
     {
+        void Add( int element);
+        void Delete(int element);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using DijkstraBinaryHeap.BinaryHeapLib;
 
 namespace DijkstraBinaryHeap
 {
@@ -6,7 +7,9 @@ namespace DijkstraBinaryHeap
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var binaryHeap = new BinaryHeap<int>();
+
+            binaryHeap.Create();
         }
     }
 }
