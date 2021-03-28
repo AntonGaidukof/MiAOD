@@ -2,9 +2,9 @@
 
 namespace DijkstraBinaryHeap.BinaryHeapLib
 {
-    public interface IBinaryHeap
+    public interface IBinaryHeap<T>
     {
-        void Add( int element);
-        void Delete(int element);
+        void Add( T element );
+        void Delete( T element );
     }
 }
