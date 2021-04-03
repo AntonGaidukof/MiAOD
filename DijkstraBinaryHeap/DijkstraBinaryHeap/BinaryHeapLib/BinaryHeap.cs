@@ -6,8 +6,8 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
 {
     public class BinaryHeap<T> : IBinaryHeap<T> where T : IComparable
     {
-        private List<T> _heap;
-        private BinaryHeapKind _kind;
+        private readonly List<T> _heap;
+        private readonly BinaryHeapKind _kind;
 
         public int Length => _heap.Count;
         public bool IsEmpty => _heap.Count == 0;
@@ -75,7 +75,10 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
 
         public void Print()
         {
-            PrintHeap( 0 );
+            foreach ( var item in _heap )
+            {
+                Console.WriteLine( item );
+            }
         }
 
         private void PrintHeap( int index )
@@ -83,12 +86,12 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
             int leftChildIndex = GetLeftChildIndex( index );
             int rightChildIndex = GetRightChildIndex( index );
 
-            if ( leftChildIndex > 0 )
+            if ( leftChildIndex >= 0 )
             {
                 PrintHeap( leftChildIndex );
                 Console.Write( $"{_heap[ leftChildIndex ]} " );
             }
-            else if ( rightChildIndex > 0 )
+            else if ( rightChildIndex >= 0 )
             {
                 PrintHeap( rightChildIndex );
                 Console.Write( $"{_heap[ rightChildIndex ]} " );
@@ -113,29 +116,61 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
             }
         }
 
-        private bool NeedSiftingUp( int index )
-        {
-            var element = _heap[ index ];
-            int parentIndex = GetParentInndex( index );
-
-            return parentIndex > 0 && element.CompareTo( _heap[ parentIndex ] ) == ParerntComparingResult;
-        }
-
         private void SiftingUp( int index )
         {
-            int parentIndex = GetParentInndex( index );
-            var parent = _heap[ parentIndex ];
-            var element = _heap[ index ];
+            T element = _heap[ index ];
+            T parent;
 
-            while ( element.CompareTo( parent ) == ParerntComparingResult )
+            while ( NeedSiftingUp( index ) )
             {
+                int parentIndex = GetParentIndex( index );
+                parent = _heap[ parentIndex ];
                 _heap[ parentIndex ] = element;
                 _heap[ index ] = parent;
                 index = parentIndex;
-                parentIndex = GetParentInndex( index );
-                parentIndex = GetParentIndex( index );
-                element = _heap[ index ];
-                parent = _heap[ parentIndex ];
+            }
+        }
+
+        private bool NeedSiftingUp( int index )
+        {
+            var element = _heap[ index ];
+            int parentIndex = GetParentIndex( index );
+
+            return parentIndex >= 0 && element.CompareTo( _heap[ parentIndex ] ) == ParerntComparingResult;
+        }
+
+        private void SiftingDown( int index )
+        {
+            T element = _heap[ index ];
+            T leftChild;
+            T rightChild;
+
+            while ( NeedSiftingDown( index ) )
+            {
+                int leftChildIndex = GetLeftChildIndex( index );
+                if ( leftChildIndex > 0 )
+                {
+                    leftChild = _heap[ leftChildIndex ];
+                    if ( element.CompareTo( leftChild ) == ChildComparingResult )
+                    {
+                        _heap[ leftChildIndex ] = element;
+                        _heap[ index ] = leftChild;
+                        index = leftChildIndex;
+                        continue;
+                    }
+                }
+
+                int rightChildIndex = GetRightChildIndex( index );
+                if ( rightChildIndex > 0 )
+                {
+                    rightChild = _heap[ rightChildIndex ];
+                    if ( element.CompareTo( rightChild ) == ChildComparingResult )
+                    {
+                        _heap[ rightChildIndex ] = element;
+                        _heap[ index ] = rightChild;
+                        index = rightChildIndex;
+                    }
+                }
             }
         }
 
@@ -149,48 +184,22 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
                 || ( rightChildIndex > 0 && element.CompareTo( _heap[ rightChildIndex ] ) == ChildComparingResult );
         }
 
-        private void SiftingDown( int index )
-        {
-            int leftChildIndex = GetLeftChildIndex( index );
-            int rightChildIndex = GetRightChildIndex( index );
-            var element = _heap[ index ];
-            var leftChild = _heap[ leftChildIndex ];
-            var rightChild = _heap[ rightChildIndex ];
-
-            while ( element.CompareTo( leftChild ) == ChildComparingResult || element.CompareTo( rightChild ) == ChildComparingResult )
-            {
-                if ( element.CompareTo( leftChild ) == ChildComparingResult )
-                {
-                    _heap[ leftChildIndex ] = element;
-                    _heap[ index ] = leftChild;
-                    index = leftChildIndex;
-                }
-                else
-                {
-                    _heap[ rightChildIndex ] = element;
-                    _heap[ index ] = leftChild;
-                    index = rightChildIndex;
-                }
-
-                leftChildIndex = GetLeftChildIndex( index );
-                rightChildIndex = GetRightChildIndex( index );
-            }
-        }
-
-        private int GetParentInndex( int elementIndex )
         private int GetParentIndex( int elementIndex )
         {
-            return ( elementIndex - 1 ) / 2;
+            int parentIndex = ( elementIndex - 1 ) / 2;
+            return ( _heap.Count - 1 ) <= parentIndex ? parentIndex : -1;
         }
 
         private int GetLeftChildIndex( int elementIndex )
         {
-            return 2 * elementIndex + 1;
+            int childIndex = 2 * elementIndex + 1;
+            return ( _heap.Count - 1 ) <= childIndex ? childIndex : -1;
         }
 
         private int GetRightChildIndex( int elementIndex )
         {
-            return 2 * elementIndex + 2;
+            int childIndex = 2 * elementIndex + 2;
+            return ( _heap.Count - 1 ) <= childIndex ? childIndex : -1;
         }
     }
 }
