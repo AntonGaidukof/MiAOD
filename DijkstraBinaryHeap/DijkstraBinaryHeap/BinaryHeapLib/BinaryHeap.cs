@@ -11,6 +11,7 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
 
         public int Length => _heap.Count;
         public bool IsEmpty => _heap.Count == 0;
+        public T First => _heap.First();
 
         private int ParerntComparingResult => _kind == BinaryHeapKind.Desc ? 1 : -1;
         private int ChildComparingResult => _kind == BinaryHeapKind.Desc ? -1 : 1;
@@ -33,6 +34,16 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
 
         public void Delete( T element )
         {
+            if ( _heap.Count == 0 )
+            {
+                return;
+            }
+
+            if ( _heap.Count == 1 )
+            {
+                _heap.RemoveAt( 0 );
+            }
+
             int elementIndex = _heap.FindIndex( e => e.Equals( element ) );
             if ( elementIndex != -1 )
             {
@@ -40,6 +51,23 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
                 _heap.RemoveAt( _heap.Count - 1 );
                 Sifting( elementIndex );
             }
+        }
+
+        public void Delete()
+        {
+            if ( _heap.Count == 0 )
+            {
+                return;
+            }
+
+            if ( _heap.Count == 1 )
+            {
+                _heap.RemoveAt( 0 );
+            }
+
+            _heap[ 0 ] = _heap.Last();
+            _heap.RemoveAt( _heap.Count - 1 );
+            Sifting( 0 );
         }
 
         public void Add( T element )
@@ -53,16 +81,16 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
             }
         }
 
-        public void Update( T currentValue, T newValue )
-        {
-            int currentValueIndex = _heap.FindIndex( e => e.Equals( currentValue ) );
+        /*  public void Update( T currentValue, T newValue )
+          {
+              int currentValueIndex = _heap.FindIndex( e => e.Equals( currentValue ) );
 
-            if ( currentValueIndex != -1 )
-            {
-                _heap[ currentValueIndex ] = newValue;
-                Sifting( currentValueIndex );
-            }
-        }
+              if ( currentValueIndex != -1 )
+              {
+                  _heap[ currentValueIndex ] = newValue;
+                  Sifting( currentValueIndex );
+              }
+          }*/
 
         public void Update( int index, T newValue )
         {
@@ -75,33 +103,22 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
 
         public void Print()
         {
-            foreach ( var item in _heap )
+            int newStringLimit = 2;
+            Console.WriteLine( _heap.First() );
+            for ( int i = 1; i < _heap.Count; i++ )
             {
-                Console.WriteLine( item );
+                Console.Write( $"{_heap[ i ]} " );
+                if ( newStringLimit == i )
+                {
+                    Console.WriteLine();
+                    newStringLimit = 2 * newStringLimit + 2;
+                }
             }
-        }
-
-        private void PrintHeap( int index )
-        {
-            int leftChildIndex = GetLeftChildIndex( index );
-            int rightChildIndex = GetRightChildIndex( index );
-
-            if ( leftChildIndex >= 0 )
-            {
-                PrintHeap( leftChildIndex );
-                Console.Write( $"{_heap[ leftChildIndex ]} " );
-            }
-            else if ( rightChildIndex >= 0 )
-            {
-                PrintHeap( rightChildIndex );
-                Console.Write( $"{_heap[ rightChildIndex ]} " );
-            }
-            Console.WriteLine( "" );
         }
 
         private void Sifting( int index )
         {
-            if ( index == 0 || index >= _heap.Count )
+            if ( index == -1 || index >= _heap.Count )
             {
                 return;
             }
@@ -187,19 +204,19 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
         private int GetParentIndex( int elementIndex )
         {
             int parentIndex = ( elementIndex - 1 ) / 2;
-            return ( _heap.Count - 1 ) <= parentIndex ? parentIndex : -1;
+            return ( _heap.Count - 1 ) >= parentIndex ? parentIndex : -1;
         }
 
         private int GetLeftChildIndex( int elementIndex )
         {
             int childIndex = 2 * elementIndex + 1;
-            return ( _heap.Count - 1 ) <= childIndex ? childIndex : -1;
+            return ( _heap.Count - 1 ) >= childIndex ? childIndex : -1;
         }
 
         private int GetRightChildIndex( int elementIndex )
         {
             int childIndex = 2 * elementIndex + 2;
-            return ( _heap.Count - 1 ) <= childIndex ? childIndex : -1;
+            return ( _heap.Count - 1 ) >= childIndex ? childIndex : -1;
         }
     }
 }

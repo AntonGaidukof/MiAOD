@@ -11,6 +11,10 @@ namespace DijkstraBinaryHeap
             var binaryHeap = new BinaryHeap<int>( testList, BinaryHeapKind.Asc );
 
             binaryHeap.Print();
+            binaryHeap.Delete();
+         //   binaryHeap.Update( 1, 10 );
+            System.Console.WriteLine( "--------------" );
+            binaryHeap.Print();
         }
     }
 }
