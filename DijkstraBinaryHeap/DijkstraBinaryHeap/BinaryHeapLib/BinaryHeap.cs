@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace DijkstraBinaryHeap.BinaryHeapLib
 {
-    public class BinaryHeap<T> : IBinaryHeap<T> where T : IComparable
+    public class BinaryHeap<T> : IBinaryHeap<T> where T : IComparable<T>
     {
         private readonly List<T> _heap;
         private readonly BinaryHeapKind _kind;
@@ -13,7 +13,7 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
         public bool IsEmpty => _heap.Count == 0;
         public T First => _heap.First();
 
-        private int ParerntComparingResult => _kind == BinaryHeapKind.Desc ? 1 : -1;
+        private int ParentComparingResult => _kind == BinaryHeapKind.Desc ? 1 : -1;
         private int ChildComparingResult => _kind == BinaryHeapKind.Desc ? -1 : 1;
 
         public BinaryHeap( BinaryHeapKind kind = BinaryHeapKind.Desc )
@@ -150,10 +150,10 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
 
         private bool NeedSiftingUp( int index )
         {
-            var element = _heap[ index ];
+            T element = _heap[ index ];
             int parentIndex = GetParentIndex( index );
 
-            return parentIndex >= 0 && element.CompareTo( _heap[ parentIndex ] ) == ParerntComparingResult;
+            return parentIndex >= 0 && element.CompareTo( _heap[ parentIndex ] ) == ParentComparingResult;
         }
 
         private void SiftingDown( int index )
