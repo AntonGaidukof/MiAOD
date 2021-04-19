@@ -16,13 +16,13 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
         private int ParentComparingResult => _kind == BinaryHeapKind.Desc ? 1 : -1;
         private int ChildComparingResult => _kind == BinaryHeapKind.Desc ? -1 : 1;
 
-        public BinaryHeap( BinaryHeapKind kind = BinaryHeapKind.Desc )
+        public BinaryHeap( BinaryHeapKind kind = BinaryHeapKind.Asc )
         {
             _kind = kind;
             _heap = new List<T>();
         }
 
-        public BinaryHeap( IEnumerable<T> elements, BinaryHeapKind kind = BinaryHeapKind.Desc )
+        public BinaryHeap( IEnumerable<T> elements, BinaryHeapKind kind = BinaryHeapKind.Asc )
         {
             _kind = kind;
             _heap = new List<T>();
