@@ -4,7 +4,7 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
 {
     public interface IBinaryHeap<T>
     {
-        void Add( T element );
-        void Delete( T element );
+        void Push( T element );
+        void Pop();
     }
 }

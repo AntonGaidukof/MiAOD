@@ -28,11 +28,11 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
             _heap = new List<T>();
             foreach ( var element in elements )
             {
-                Add( element );
+                Push( element );
             }
         }
 
-        public void Delete( T element )
+        public void Pop()
         {
             if ( _heap.Count == 0 )
             {
@@ -42,27 +42,7 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
             if ( _heap.Count == 1 )
             {
                 _heap.RemoveAt( 0 );
-            }
-
-            int elementIndex = _heap.FindIndex( e => e.Equals( element ) );
-            if ( elementIndex != -1 )
-            {
-                _heap[ elementIndex ] = _heap.Last();
-                _heap.RemoveAt( _heap.Count - 1 );
-                Sifting( elementIndex );
-            }
-        }
-
-        public void Delete()
-        {
-            if ( _heap.Count == 0 )
-            {
                 return;
-            }
-
-            if ( _heap.Count == 1 )
-            {
-                _heap.RemoveAt( 0 );
             }
 
             _heap[ 0 ] = _heap.Last();
@@ -70,7 +50,7 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
             Sifting( 0 );
         }
 
-        public void Add( T element )
+        public void Push( T element )
         {
             _heap.Add( element );
             int index = _heap.Count - 1;

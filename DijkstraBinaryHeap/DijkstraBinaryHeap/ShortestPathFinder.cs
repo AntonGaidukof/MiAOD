@@ -6,7 +6,7 @@ using DijkstraBinaryHeap.BinaryHeapLib;
 
 namespace DijkstraBinaryHeap
 {
-    public class ShortestPathFinder
+   /* public class ShortestPathFinder
     {
         private const int InfiniteInt = Int32.MaxValue;
 
@@ -21,13 +21,13 @@ namespace DijkstraBinaryHeap
             _waysMap = _inputData.GetWaysMap();
         }
 
-        public OutputData GetShortestPathData( string outputFileName )
+        public ShortWay GetShortestPathData( string outputFileName )
         {
             _outputFileName = outputFileName;
 
             _markedCities = new HashSet<int>();
             var unmarkedCities = new BinaryHeap<WayData>();
-            unmarkedCities.Add( new WayData
+            unmarkedCities.Push( new WayData
             {
                 CityStartIndex = _inputData.StartCityIndex, 
                 CityEndIndex = _inputData.StartCityIndex, 
@@ -38,7 +38,7 @@ namespace DijkstraBinaryHeap
             {
                 if ( unmarkedCities.IsEmpty )
                 {
-                    return new OutputData { IsWayNotFound = true };
+                    return new ShortWay { IsWayNotFound = true };
                 }
 
                 WayData wayData = unmarkedCities.First;
@@ -56,11 +56,11 @@ namespace DijkstraBinaryHeap
                 }
             }
 
-            return new OutputData
+            return new ShortWay
             {
                 ShortestPathLength = 1,
                 CitiesSequenceAlongPath = new List<int>()
             };
         }
-    }
+    }*/
 }
