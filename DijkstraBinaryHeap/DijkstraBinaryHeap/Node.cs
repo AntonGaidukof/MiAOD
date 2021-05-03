@@ -22,11 +22,6 @@ namespace DijkstraBinaryHeap
             RelatedNodes = new List<Tuple<int, Node>>();
         }
 
-        public void SetRelatedNodes( List<Tuple<int, int>> relatedNode )
-        {
-
-        }
-
         public int CompareTo( [AllowNull] Node other )
         {
             return other.Distance.CompareTo( Distance );

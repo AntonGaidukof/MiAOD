@@ -11,43 +11,41 @@ namespace DijkstraBinaryHeap
     {
         static int Main( string[] args )
         {
-            Console.WriteLine( "print input file name and output file name: " );
+            Console.WriteLine( "Введите название входного файла и выходного" );
             string[] inputLine = Console.ReadLine()?.Split( ' ' );
+            
             if ( inputLine == null || inputLine.Length < 2 )
             {
-                Console.WriteLine( "you must input file name and output file name!" );
+                Console.WriteLine( "Нужно ввести название обоих файлов" );
 
                 return 1;
             }
 
             string inputFileName = inputLine[ 0 ];
-            if ( string.IsNullOrEmpty( inputFileName ) )
-            {
-                Console.WriteLine( "Error input file name is empty!" );
-
-                return 1;
-            }
-
-            string outputFileName = inputLine[ 0 ];
-            if ( string.IsNullOrEmpty( outputFileName ) )
-            {
-                Console.WriteLine( "Error output file name is empty!" );
-
-                return 1;
-            }
+            string outputFileName = inputLine[ 1 ];
 
             var inputData = GetInputData( inputFileName );
             var shortWay = GetShortWay( inputData );
 
-            Console.WriteLine( $"Distance: {shortWay?.ShortestPathLength.ToString() ?? "false"}" );
-            Console.WriteLine( shortWay.DestinationPath );
+            using ( StreamWriter sw = new StreamWriter( outputFileName, false, Encoding.Default ) )
+            {
+                if ( shortWay != null)
+                {
+                    sw.WriteLine( shortWay?.ShortestPathLength.ToString() );
+                    sw.WriteLine( shortWay.DestinationPath );
+                }
+                else
+                {
+                    sw.WriteLine( "false" );
+                }
+            }
 
             return 0;
         }
 
         private static InputData GetInputData( string inputFileName )
         {
-            string[] lines = File.ReadAllLines( $"{inputFileName}.txt" );
+            string[] lines = File.ReadAllLines( $"{inputFileName}" );
             var nodesByName = new Dictionary<int, Node>();
 
             for ( int i = 1; i < lines.Length; ++i )
