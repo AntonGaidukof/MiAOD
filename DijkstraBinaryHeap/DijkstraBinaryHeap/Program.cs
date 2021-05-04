@@ -11,7 +11,7 @@ namespace DijkstraBinaryHeap
     {
         static int Main( string[] args )
         {
-            Console.WriteLine( "Введите название входного файла и выходного" );
+            Console.WriteLine( "Введите название входного и выходного файла через пробел" );
             string[] inputLine = Console.ReadLine()?.Split( ' ' );
             
             if ( inputLine == null || inputLine.Length < 2 )
