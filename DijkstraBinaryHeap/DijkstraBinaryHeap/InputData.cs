@@ -7,8 +7,6 @@ namespace DijkstraBinaryHeap
     {
         public Node[] Nodes { get; set; }
 
-        public Dictionary<int, int> DistancesByNodeName { get; set; }
-
         public Node StartNode { get; set; }
 
         public Node DistanceNode { get; set; }

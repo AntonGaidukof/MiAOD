@@ -24,8 +24,27 @@ namespace DijkstraBinaryHeap
             string inputFileName = inputLine[ 0 ];
             string outputFileName = inputLine[ 1 ];
 
+            var startTime = System.Diagnostics.Stopwatch.StartNew();
             var inputData = GetInputData( inputFileName );
+            
+            var tempResult = startTime.Elapsed;
+            string elapsedTime = String.Format( "{0:00}:{1:00}:{2:00}.{3:000}",
+                tempResult.Hours,
+                tempResult.Minutes,
+                tempResult.Seconds,
+                tempResult.Milliseconds );
+            Console.WriteLine( elapsedTime );
+           
             var shortWay = GetShortWay( inputData );
+            
+            startTime.Stop();
+            tempResult = startTime.Elapsed;
+            elapsedTime = String.Format( "{0:00}:{1:00}:{2:00}.{3:000}",
+                tempResult.Hours,
+                tempResult.Minutes,
+                tempResult.Seconds,
+                tempResult.Milliseconds );
+            Console.WriteLine( elapsedTime );
 
             using ( StreamWriter sw = new StreamWriter( outputFileName, false, Encoding.Default ) )
             {
@@ -78,9 +97,7 @@ namespace DijkstraBinaryHeap
                 Nodes = nodesByName.Values.ToArray(),
                 StartNode = nodesByName[ int.Parse( firstLine[ 2 ] ) ],
                 DistanceNode = nodesByName[ int.Parse( firstLine[ 3 ] ) ],
-                DistancesByNodeName = nodesByName.ToDictionary( n => n.Key, n => int.MaxValue )
             };
-            inputData.DistancesByNodeName[ inputData.StartNode.Name ] = 0;
             inputData.StartNode.Distance = 0;
 
             return inputData;
@@ -88,8 +105,7 @@ namespace DijkstraBinaryHeap
 
         private static ShortWay GetShortWay( InputData inputData )
         {
-            var distancesByNodeName = inputData.DistancesByNodeName;
-            var heap = new BinaryHeap<Node>();
+            var heap = new BinaryHeap<Node>( inputData.Nodes.Count() );
 
             heap.Push( inputData.StartNode );
 
@@ -98,16 +114,10 @@ namespace DijkstraBinaryHeap
                 var currentNode = heap.First;
                 heap.Pop();
 
-                if ( distancesByNodeName[ currentNode.Name ] < currentNode.Distance )
-                {
-                    continue;
-                }
-
                 foreach ( var relatedNode in currentNode.RelatedNodes )
                 {
                     if ( relatedNode.Item2.Distance > relatedNode.Item1 + currentNode.Distance )
                     {
-                        distancesByNodeName[ relatedNode.Item2.Name ] = relatedNode.Item1 + currentNode.Distance;
                         relatedNode.Item2.Distance = relatedNode.Item1 + currentNode.Distance;
                         relatedNode.Item2.LastNode = currentNode;
                         heap.Push( relatedNode.Item2 );
@@ -115,12 +125,11 @@ namespace DijkstraBinaryHeap
                 }
             }
 
-
-            return distancesByNodeName[ inputData.DistanceNode.Name ] == int.MaxValue
+            return inputData.DistanceNode.Distance == int.MaxValue
                 ? null
                 : new ShortWay
                 {
-                    ShortestPathLength = distancesByNodeName[ inputData.DistanceNode.Name ],
+                    ShortestPathLength = inputData.DistanceNode.Distance,
                     DestinationPath = GetMinDestinationPath( inputData.DistanceNode )
                 };
         }

@@ -16,10 +16,11 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
         private int ParentComparingResult => _kind == BinaryHeapKind.Desc ? 1 : -1;
         private int ChildComparingResult => _kind == BinaryHeapKind.Desc ? -1 : 1;
 
-        public BinaryHeap( BinaryHeapKind kind = BinaryHeapKind.Asc )
+        public BinaryHeap( int capacity, BinaryHeapKind kind = BinaryHeapKind.Asc )
         {
             _kind = kind;
             _heap = new List<T>();
+            _heap.Capacity = capacity;
         }
 
         public BinaryHeap( IEnumerable<T> elements, BinaryHeapKind kind = BinaryHeapKind.Asc )
@@ -60,17 +61,6 @@ namespace DijkstraBinaryHeap.BinaryHeapLib
                 SiftingUp( index );
             }
         }
-
-        /*  public void Update( T currentValue, T newValue )
-          {
-              int currentValueIndex = _heap.FindIndex( e => e.Equals( currentValue ) );
-
-              if ( currentValueIndex != -1 )
-              {
-                  _heap[ currentValueIndex ] = newValue;
-                  Sifting( currentValueIndex );
-              }
-          }*/
 
         public void Update( int index, T newValue )
         {
