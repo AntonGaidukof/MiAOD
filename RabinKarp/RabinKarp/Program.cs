@@ -8,8 +8,8 @@ namespace RabinKarp
 {
     class Program
     {
-        private const int EmptyValue = -1;
         private const ulong EmptyHash = 0;
+        private const string OutputFileName = "out.txt";
 
         private static readonly HashSet<char> ForbiddenChars = new HashSet<char> { '.', ',', '!', '?', ':' };
 
@@ -20,78 +20,106 @@ namespace RabinKarp
             string[] targetLines = new string[ int.Parse( inputLines[ 0 ] ) ];
 
             Array.Copy( inputLines, 1, targetLines, 0, int.Parse( inputLines[ 0 ] ) );
+            targetLines = targetLines.Select( tl => ReplaceForbiddenChars( tl ) ).ToArray();
             
-            var inputText = ReadInputData( inputLines.Last() );
-            var positionsByTargetStrings = FindText( inputText, targetLines );
+            var startTime = System.Diagnostics.Stopwatch.StartNew();
+            var inputData = ReadInputData( inputLines.Last() );
 
-            foreach ( var positionsByTargetString in positionsByTargetStrings )
+            var tempResult = startTime.Elapsed;
+            string elapsedTime = String.Format( "{0:00}:{1:00}:{2:00}.{3:000}",
+                tempResult.Hours,
+                tempResult.Minutes,
+                tempResult.Seconds,
+                tempResult.Milliseconds );
+            Console.WriteLine( $"ReadInputData time: {elapsedTime}" );
+
+            var targetStringPositions = FindText( inputData.Item2, inputData.Item1.ToArray(), targetLines );
+
+            tempResult = startTime.Elapsed;
+            elapsedTime = String.Format( "{0:00}:{1:00}:{2:00}.{3:000}",
+                tempResult.Hours,
+                tempResult.Minutes,
+                tempResult.Seconds,
+                tempResult.Milliseconds );
+            Console.WriteLine( $"FindText time: {elapsedTime}" );
+
+            using ( StreamWriter sw = new StreamWriter( OutputFileName, false, Encoding.UTF8 ) )
             {
-                foreach ( var position in positionsByTargetString.Value )
+                foreach ( var targetStringPosition in targetStringPositions )
                 {
-                    Console.WriteLine( $"{positionsByTargetString.Key}: Line: {position.Item1}, column: {position.Item2}" );
+                    sw.WriteLine( $"Line {targetStringPosition.Item2}, position {targetStringPosition.Item3}: {targetStringPosition.Item1}" );
                 }
             }
+
+            startTime.Stop();
+            tempResult = startTime.Elapsed;
+            elapsedTime = String.Format( "{0:00}:{1:00}:{2:00}.{3:000}",
+                tempResult.Hours,
+                tempResult.Minutes,
+                tempResult.Seconds,
+                tempResult.Milliseconds );
+            Console.WriteLine( $"Write result time: {elapsedTime}" );
         }
 
-       /* public List<string> GetTargetStrings( string[] inputLines )
-        {
-            int amountLines = int.Parse( inputLines[ 0 ] );
-            var targetStrings = new List<string>();
-
-            for ( int i = 1; i <= amountLines; i++ )
-            {
-                targetStrings.Add()
-            }
-        }*/
-
-        public static string[] ReadInputData( string inputFileName )
+        public static Tuple<List<int>, string> ReadInputData( string inputFileName )
         {
             string str;
-            List<string> result = new List<string>();
+            var text = new StringBuilder();
+            var strLengths = new List<int>();
 
             using ( var f = new StreamReader( inputFileName, Encoding.UTF8 ) )
             {
                 while ( ( str = f.ReadLine() ) != null )
                 {
-                    result.Add( ReplaceForbiddenChars( str ) );
+                    str = $"{ReplaceForbiddenChars( str )} ";
+                    text.Append( str );
+                    strLengths.Add( str.Length );
                 }
             }
 
-            return result.ToArray();
+            return new Tuple<List<int>, string>( strLengths, text.ToString() );
         }
 
-        public static Dictionary<string, List<Tuple<int, int>>> FindText( string[] strArr, string[] targetStrs )
+        public static List<Tuple<string, int, int>> FindText( string text, int[] strLengths, string[] targetStrs )
         {
             var targetStrHashsByStr = new Dictionary<string, ulong>();
-            var positionsByTargetString = new Dictionary<string, List<Tuple<int, int>>>();
 
             foreach ( var targetStr in targetStrs )
             {
                 targetStrHashsByStr.TryAdd( targetStr, Hash.GetInitializeHashValue( targetStr ) );
-                positionsByTargetString.TryAdd( targetStr, new List<Tuple<int, int>>() );
             }
-            for ( int i = 0; i < strArr.Length; i++ )
-            {
-                ScanStr( strArr[ i ], targetStrHashsByStr, i, positionsByTargetString );
-            }
-
-            return positionsByTargetString;
+            return ScanStr( text, strLengths, targetStrHashsByStr );
         }
 
-        public static void ScanStr( string str, Dictionary<string, ulong> targetStrHashsByStr, int currentLine, Dictionary<string, List<Tuple<int, int>>> positionsByTargetString )
+        public static List<Tuple<string, int, int>> ScanStr( string text, int[] strLengths, Dictionary<string, ulong> targetStrHashsByStr )
         {
             var scanStrHashsByTargetStr = targetStrHashsByStr.ToDictionary( s => s.Key, s => EmptyHash );
+            var targetStringPositions = new List<Tuple<string, int, int>>();
+            int currentLine = 0;
+            int currentColumn = 0;
 
-            for ( int i = 0; i < str.Length; i++ )
+            for ( int i = 0; i < text.Length; i++ )
             {
                 foreach ( var item in targetStrHashsByStr )
                 {
-                    if ( CompareHash( scanStrHashsByTargetStr, item.Value, str, item.Key, i ) )
+                    if ( CompareHash( scanStrHashsByTargetStr, item.Value, text, item.Key, i ) )
                     {
-                        positionsByTargetString[ item.Key ].Add( new Tuple<int, int>( currentLine + 1, i + 1 ) );
+                        targetStringPositions.Add( new Tuple<string, int, int>( item.Key, currentLine + 1, currentColumn + 1 )  );
                     }
                 }
+
+                if (currentColumn == strLengths[currentLine] - 1)
+                {
+                    currentLine++;
+                    currentColumn = 0;
+                }
+                else
+                {
+                    currentColumn++;
+                }
             }
+
+            return targetStringPositions;
         }
 
         private static bool CompareHash( Dictionary<string, ulong> scanStrHashsByTargetStr, ulong targetStrHash, string scanStr, string targetStr, int currentPosition )
