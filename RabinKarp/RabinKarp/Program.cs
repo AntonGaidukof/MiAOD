@@ -8,7 +8,7 @@ namespace RabinKarp
 {
     class Program
     {
-        private const ulong EmptyHash = 0;
+        private const long EmptyHash = 0;
         private const string OutputFileName = "out.txt";
 
         private static readonly HashSet<char> ForbiddenChars = new HashSet<char> { '.', ',', '!', '?', ':' };
@@ -82,18 +82,30 @@ namespace RabinKarp
 
         public static List<Tuple<string, int, int>> FindText( string text, int[] strLengths, string[] targetStrs )
         {
-            var targetStrHashsByStr = new Dictionary<string, ulong>();
+            var targetStrHashsByStr = new Dictionary<string, HashData>();
 
             foreach ( var targetStr in targetStrs )
             {
-                targetStrHashsByStr.TryAdd( targetStr, Hash.GetInitializeHashValue( targetStr ) );
+                targetStrHashsByStr.TryAdd( targetStr, new HashData( Hash.GetInitializeHashValue( targetStr ), CalculatePower( targetStr ) ) );
             }
             return ScanStr( text, strLengths, targetStrHashsByStr );
         }
 
-        public static List<Tuple<string, int, int>> ScanStr( string text, int[] strLengths, Dictionary<string, ulong> targetStrHashsByStr )
+        private static long CalculatePower( string str )
         {
-            var scanStrHashsByTargetStr = targetStrHashsByStr.ToDictionary( s => s.Key, s => EmptyHash );
+            long power = 1;
+            for ( int i = 0; i < str.Count(); i++ )
+            {
+                power = (power * Hash.PrimeBase) % Hash.PrimeMod;
+            }
+
+            return power;
+        }
+
+        public static List<Tuple<string, int, int>> ScanStr( string text, int[] strLengths, Dictionary<string, HashData> targetStrHashsByStr )
+        {
+            Dictionary<string, long> scanStrHashsByTargetStr = targetStrHashsByStr
+                .ToDictionary( s => s.Key, s => EmptyHash );
             var targetStringPositions = new List<Tuple<string, int, int>>();
             int currentLine = 0;
             int currentColumn = 0;
@@ -104,7 +116,8 @@ namespace RabinKarp
                 {
                     if ( CompareHash( scanStrHashsByTargetStr, item.Value, text, item.Key, i ) )
                     {
-                        targetStringPositions.Add( new Tuple<string, int, int>( item.Key, currentLine + 1, currentColumn + 1 )  );
+                        var x = GenerateValue(item.Key.Length, currentLine, currentColumn, strLengths );
+                        targetStringPositions.Add( new Tuple<string, int, int>( item.Key, x.Line, x.Column )  );
                     }
                 }
 
@@ -122,27 +135,39 @@ namespace RabinKarp
             return targetStringPositions;
         }
 
-        private static bool CompareHash( Dictionary<string, ulong> scanStrHashsByTargetStr, ulong targetStrHash, string scanStr, string targetStr, int currentPosition )
+        private static Position GenerateValue( int targetStrLen, int currentLine, int currentColumn, int[] strLengths )
         {
-            if ( currentPosition + targetStr.Length > scanStr.Length )
+            var x = currentColumn - targetStrLen + 2;
+            while ( x < 0 )
             {
-                return false;
+                currentLine--;
+                var y = strLengths[currentLine];
+                x = y + x;
             }
 
-            string subStr = scanStr.Substring( currentPosition, targetStr.Length );
-            char previousChar = currentPosition == 0 ? default : scanStr[ currentPosition ];
-            ulong scanStrHash = Hash.GetHashValue( scanStrHashsByTargetStr[ targetStr ], previousChar, subStr[ targetStr.Length - 1 ], subStr );
-            scanStrHashsByTargetStr[ targetStr ] = scanStrHash;
+            return new Position { Column = x, Line = currentLine + 1 };
+        }
 
-            if ( scanStrHash == targetStrHash )
+        private static bool CompareHash( Dictionary<string, long> scanStrHashsByTargetStr, HashData targetStrHashData, string scanStr, string targetStr, int currentPosition )
+        {
+            // add the last symbol
+            var strHash = scanStrHashsByTargetStr[ targetStr ];
+            strHash = strHash * Hash.PrimeBase + scanStr[currentPosition];
+            strHash %= Hash.PrimeMod;
+
+            // remove the first symbol
+            if ( currentPosition >= targetStr.Count() )
             {
-                if ( subStr == targetStr )
+                strHash -= targetStrHashData.Power * scanStr[currentPosition - targetStr.Count()] % Hash.PrimeMod;
+                if ( strHash < 0 ) // negative to positive
                 {
-                    return true;
+                    strHash += Hash.PrimeMod;
                 }
             }
 
-            return false;
+            scanStrHashsByTargetStr[ targetStr ] = strHash;
+
+            return currentPosition >= targetStr.Count() - 1 && targetStrHashData.Hash == strHash;
         }
 
         private static string ReplaceForbiddenChars( string str )
