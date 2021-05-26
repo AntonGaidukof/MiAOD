@@ -130,8 +130,8 @@ namespace RabinKarp
             }
 
             string subStr = scanStr.Substring( currentPosition, targetStr.Length );
-            char previousChar = currentPosition == 0 ? default : scanStr[ currentPosition ];
-            ulong scanStrHash = Hash.GetHashValue( scanStrHashsByTargetStr[ targetStr ], previousChar, subStr[ targetStr.Length - 1 ], subStr );
+            char previousChar = currentPosition == 0 ? default : scanStr[ currentPosition - 1];
+            ulong scanStrHash = Hash.GetHashValue( scanStrHashsByTargetStr[ targetStr ], previousChar, subStr.Last(), subStr );
             scanStrHashsByTargetStr[ targetStr ] = scanStrHash;
 
             if ( scanStrHash == targetStrHash )
