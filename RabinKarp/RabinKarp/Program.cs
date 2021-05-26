@@ -33,7 +33,7 @@ namespace RabinKarp
                 tempResult.Milliseconds );
             Console.WriteLine( $"ReadInputData time: {elapsedTime}" );
 
-            var targetStringPositions = FindText( inputData.Item2, inputData.Item1.ToArray(), targetLines );
+            Dictionary<Position, List<string>> targetStringPositions = FindText( inputData.Item2, inputData.Item1.ToArray(), targetLines );
 
             tempResult = startTime.Elapsed;
             elapsedTime = String.Format( "{0:00}:{1:00}:{2:00}.{3:000}",
@@ -42,12 +42,16 @@ namespace RabinKarp
                 tempResult.Seconds,
                 tempResult.Milliseconds );
             Console.WriteLine( $"FindText time: {elapsedTime}" );
-
+            
+            var s = new SortedDictionary<Position, List<string>>(targetStringPositions);
             using ( StreamWriter sw = new StreamWriter( OutputFileName, false, Encoding.UTF8 ) )
             {
-                foreach ( var targetStringPosition in targetStringPositions )
+                foreach ( KeyValuePair<Position, List<string>> targetStringPosition in s )
                 {
-                    sw.WriteLine( $"Line {targetStringPosition.Item2}, position {targetStringPosition.Item3}: {targetStringPosition.Item1}" );
+                    foreach ( string target in targetStringPosition.Value )
+                    {
+                        sw.WriteLine( $"Line {targetStringPosition.Key.Line}, position {targetStringPosition.Key.Column}: {target}" );    
+                    }
                 }
             }
 
@@ -80,7 +84,7 @@ namespace RabinKarp
             return new Tuple<List<int>, string>( strLengths, text.ToString() );
         }
 
-        public static List<Tuple<string, int, int>> FindText( string text, int[] strLengths, string[] targetStrs )
+        public static Dictionary<Position, List<string>> FindText( string text, int[] strLengths, string[] targetStrs )
         {
             var targetStrHashsByStr = new Dictionary<string, HashData>();
 
@@ -102,11 +106,11 @@ namespace RabinKarp
             return power;
         }
 
-        public static List<Tuple<string, int, int>> ScanStr( string text, int[] strLengths, Dictionary<string, HashData> targetStrHashsByStr )
+        public static Dictionary<Position, List<string>> ScanStr( string text, int[] strLengths, Dictionary<string, HashData> targetStrHashsByStr )
         {
             Dictionary<string, long> scanStrHashsByTargetStr = targetStrHashsByStr
                 .ToDictionary( s => s.Key, s => EmptyHash );
-            var targetStringPositions = new List<Tuple<string, int, int>>();
+            var targetStringPositions = new Dictionary<Position, List<string>>();//<Tuple<string, int, int>>();
             int currentLine = 0;
             int currentColumn = 0;
 
@@ -116,8 +120,14 @@ namespace RabinKarp
                 {
                     if ( CompareHash( scanStrHashsByTargetStr, item.Value, text, item.Key, i ) )
                     {
-                        var x = GenerateValue(item.Key.Length, currentLine, currentColumn, strLengths );
-                        targetStringPositions.Add( new Tuple<string, int, int>( item.Key, x.Line, x.Column )  );
+                        var itemPosition = GenerateValue(item.Key.Length, currentLine, currentColumn, strLengths );
+
+                        if ( !targetStringPositions.ContainsKey( itemPosition ) )
+                        {
+                            targetStringPositions.Add( itemPosition, new List<string>() );
+                        }
+                        
+                        targetStringPositions[itemPosition].Add( item.Key );
                     }
                 }
 
